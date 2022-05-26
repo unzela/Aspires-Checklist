@@ -1,0 +1,71 @@
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+  demands:
+  - npm
+
+jobs:
+- job: Build
+
+  steps:
+  - task: NodeTool@0
+    displayName: 'Install Node'
+    inputs:
+      versionSpec: 14.x
+      checkLatest: true
+
+  #- task: Npm@1  
+  #  displayName: 'Angular CLI'  
+  #  inputs:  
+  #   command: custom  
+  #    verbose: false  
+  #    customCommand: 'install @angular/cli'
+
+  - task: Npm@1
+    displayName: 'npm install'
+    inputs:
+      verbose: false
+  
+  #- task: Npm@1
+  #  displayName: 'npm Array Unique'
+  #  inputs:
+  #    verbose: false
+  #    customCommand: 'npm install --save array-unique'
+  
+  - task: Npm@1
+    displayName: 'Build'
+    inputs:
+      command: custom 
+      verbose: false
+      customCommand: 'run production'
+
+  #- task: CmdLine@2
+  #  displayName: 'Build app'
+  #  inputs:
+  #    script: |
+  #      npm build --prod
+    
+    
+  #- task: CmdLine@2
+  #  inputs:
+      script: |
+        cp ./web.config ./dist/WallOfFrame
+        cat ./dist/WallOfFrame/web.config
+
+  - task: ArchiveFiles@2
+    displayName: 'Archive dist'
+    inputs:
+      rootFolderOrFile: dist/WallOfFrame
+  #  inputs:
+  #    rootFolderOrFile: dist/AngularDemo
+      includeRootFolder: false
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
